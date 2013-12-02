@@ -21,6 +21,7 @@ class Buffer_Queue(object):
 			self.G.TotalPkts += 1
 		else:
 			self.G.DroppedPkts += 1
+			self.G.TotalPkts += 1
 
 	def remove(self):
 		self.cur_size -= 1
@@ -37,12 +38,14 @@ def arrival(env, lambd, BQ):
 def service(env, Mu, BQ):
 
 	while True:
-		if(BQ.cur_size != 0):
-			yield env.timeout(Mu)
-			BQ.remove()
-		else:
+		# print("Doing something with packet number: {} at time: {}".format(BQ.cur_size, env.now))
+		if(BQ.cur_size == 0):
 			yield env.timeout(1)
-
+		elif(BQ.cur_size > 0):
+			BQ.remove()
+			yield env.timeout(Mu)
+		else:
+			print("Error")
 
 
 MAX_SIZE = 10

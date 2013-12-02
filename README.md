@@ -5,4 +5,4 @@ Buffer Queues
 
 A very basic simulation of Buffer Queues with a Poisson arrival rate and a negative exponential service rate.
 
-This project makes use of SimPy.
+This project makes use of SimPy and will not work unless it is installed.

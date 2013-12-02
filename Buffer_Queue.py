@@ -1,46 +1,58 @@
 import simpy
-from random import expovariate
-
-def car(env):
-
-	while True:
-		print('Start parking at %d' % env.now)
-		parking_duration = 5
-		yield env.timeout(parking_duration)
-		
-		print('Start driving at %d' % env.now)
-		trip_duration = 2
-		yield env.timeout(trip_duration)
+import random
 
 
-
-
-# The buffer class inherits from object base class
 class Buffer_Queue(object):
 
-	def __init__(self, env, lambd, bufferSize):
+	def __init__(self, env, maxSize):
 		self.env = env
-		self.bufferSize = bufferSize
-		self.proc = env.process(self.run(lambd))
+		self.maxSize = maxSize
+		self.cur_size = 0
 
-	def run(self, lambd):
-		while True:
-			print('Time is %d' % env.now)
+	def add(self):
 
-			if(self.bufferSize < 3):
-				lambd_time = expovariate(lambd)
-				yield env.timeout(lambd_time)
-				self.bufferSize = self.bufferSize + 1
-			else:
-				print('Buffer full with %d packets' % self.bufferSize)
-				yield env.timeout(1)
+		if(self.cur_size == 0):
+			self.cur_size += 1
+		elif(self.cur_size < self.maxSize):
+			self.cur_size += 1
+		else:
+			print("Buffer Full")
 
-
+	def remove(self):
+		self.cur_size -= 1
 
 
 
+def arrival(env, lambd, BQ):
 
+	while True:
+		lambd_time = random.expovariate(lambd)
+		yield env.timeout(lambd_time)
+		BQ.add()
+
+
+def service(env, Mu, BQ):
+
+	while True:
+		if(BQ.cur_size != 0):
+			yield env.timeout(Mu)
+			BQ.remove()
+		else:
+			yield env.timeout(1)
+
+
+
+MAX_SIZE = 10
+LAMBD = .99
+MU = 1
+
+print("Begin Simulation")
+random.seed(10)
 env = simpy.Environment()
-theBuffer = Buffer_Queue(env, .2, 0)
-env.run(until=30)
+BQ = Buffer_Queue(env, MAX_SIZE)
 
+env.process(service(env, MU, BQ))
+env.process(arrival(env, LAMBD, BQ))
+
+
+env.run(until=1000)

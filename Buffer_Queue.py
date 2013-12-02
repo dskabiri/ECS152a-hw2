@@ -1,22 +1,26 @@
 import simpy
 import random
 
+class G:
+	DroppedPkts = 0
+	TotalPkts = 0
+
 
 class Buffer_Queue(object):
 
-	def __init__(self, env, maxSize):
+	def __init__(self, env, maxSize, G):
 		self.env = env
 		self.maxSize = maxSize
 		self.cur_size = 0
+		self.G = G
 
 	def add(self):
 
-		if(self.cur_size == 0):
+		if(self.cur_size < self.maxSize):
 			self.cur_size += 1
-		elif(self.cur_size < self.maxSize):
-			self.cur_size += 1
+			self.G.TotalPkts += 1
 		else:
-			print("Buffer Full")
+			self.G.DroppedPkts += 1
 
 	def remove(self):
 		self.cur_size -= 1
@@ -29,7 +33,6 @@ def arrival(env, lambd, BQ):
 		lambd_time = random.expovariate(lambd)
 		yield env.timeout(lambd_time)
 		BQ.add()
-
 
 def service(env, Mu, BQ):
 
@@ -49,10 +52,12 @@ MU = 1
 print("Begin Simulation")
 random.seed(10)
 env = simpy.Environment()
-BQ = Buffer_Queue(env, MAX_SIZE)
+G = G()
+BQ = Buffer_Queue(env, MAX_SIZE, G)
 
 env.process(service(env, MU, BQ))
 env.process(arrival(env, LAMBD, BQ))
 
 
-env.run(until=1000)
+env.run(until=1000000)
+print("Total Packets: {} Dropped Packets: {} Pd = {}".format(G.TotalPkts, G.DroppedPkts, G.DroppedPkts/float(G.TotalPkts)))

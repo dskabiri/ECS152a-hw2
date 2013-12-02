@@ -50,7 +50,7 @@ LAMBD = .99
 MU = 1
 
 print("Begin Simulation")
-random.seed(10)
+# random.seed(10)
 env = simpy.Environment()
 G = G()
 BQ = Buffer_Queue(env, MAX_SIZE, G)

@@ -42,7 +42,7 @@ def service(env, Mu, BQ):
 	while True:
 		# print("Doing something with packet number: {} at time: {}".format(BQ.cur_size, env.now))
 		if(BQ.cur_size == 0):
-			yield env.timeout(1)
+			yield env.timeout(.1)
 		elif(BQ.cur_size > 0):
 			BQ.remove()
 			yield env.timeout(Mu)
@@ -94,6 +94,8 @@ for max_size in MAX_SIZE_DICT:
 # Begin Simulation
 # Lambda: 0.99  Buffer Size: 10
 # Total Packets: 593424 Dropped Packets: 25683 Pd = 0.0432793415838
+
+
 # Begin Simulation
 # Lambda: 0.2  Buffer Size: 50
 # Total Packets: 139997 Dropped Packets: 0 Pd = 0.0
